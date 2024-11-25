@@ -21,7 +21,7 @@ export const TaskSchema : Schema = new Schema ({
         type: Types.ObjectId,
         ref: 'Project'
     }
-});
+}, { timestamps: true });
 
 const Task = mongoose.model<ITask>('Task', TaskSchema);
 
