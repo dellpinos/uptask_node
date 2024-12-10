@@ -7,6 +7,7 @@ import { validateProjectExists } from '../middleware/project';
 
 const router = Router();
 
+
 router.post('/', 
     body('projectName')
         .notEmpty().withMessage('El nombre del proyecto es obligatorio'),
@@ -46,9 +47,9 @@ router.delete('/:id',
 
 
 /** Routes for Task */
+router.param('projectId', validateProjectExists);
 
 router.post('/:projectId/tasks',
-    validateProjectExists,
     body('name')
         .notEmpty().withMessage('El nombre de la tarea es obligatorio'),
     body('description')
@@ -57,9 +58,10 @@ router.post('/:projectId/tasks',
     TaskController.createTask
 );
 
-router.get('/:projectId/tasks',
-    validateProjectExists,
-    TaskController.getProjectTasks
+router.get('/:projectId/tasks/:taskId',
+    param('taskId').isMongoId().withMessage('ID no válido'),
+    handleInputErrors,
+    TaskController.getTaskById
 );
 
 export default router;
