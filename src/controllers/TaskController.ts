@@ -56,7 +56,7 @@ export class TaskController {
     static updateTask = async (req: Request, res: Response) => {
         try {
             const { taskId} = req.params;
-            const task = await Task.findByIdAndUpdate(taskId, req.body);
+            const task = await Task.findById(taskId);
 
             if(!task) {
                 const error = new Error('Tarea no encontrada');
@@ -67,8 +67,12 @@ export class TaskController {
                 const error = new Error('Algo salión mal');
                 return res.status(400).json({error: error.message});
             }
-            res.send('Tarea Actualizada Correctamente');
 
+            task.name = req.body.name;
+            task.description = req.body.description;
+            task.save();
+
+            res.send('Tarea Actualizada Correctamente');
 
         } catch (error) {
             console.log(error);
@@ -79,18 +83,38 @@ export class TaskController {
 
     static deleteTask = async (req: Request, res: Response) => {
         try {
-            const { taskId} = req.params;
+            const { taskId } = req.params;
             const task = await Task.findById(taskId);
-
             if(!task) {
                 const error = new Error('Tarea no encontrada');
                 return res.status(404).json({error: error.message});
             }
-            req.project.tasks = req.project.tasks.filter( item => item !== task);
 
+            req.project.tasks = req.project.tasks.filter( item => item.toString() !== taskId);
             await Promise.allSettled([task.deleteOne(), req.project.save()]);
-
             res.send('Tarea Eliminada Correctamente');
+
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({error: 'Hubo un error'})
+        }
+    }
+
+    static updateStatus = async (req: Request, res: Response) => {
+
+        try {
+            
+            const { taskId } = req.params;
+            const task = await Task.findById(taskId);
+            if(!task) {
+                const error = new Error('Tarea no encontrada');
+                return res.status(404).json({error: error.message});
+            }
+            
+            const { status } = req.body;
+            task.status = status;
+            await task.save();
+            res.send('Tarea Actualizada');
 
         } catch (error) {
             console.log(error);
