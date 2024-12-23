@@ -13,7 +13,7 @@ export class ProjectController {
         } catch (error) {
             console.log(error);
         }
-        res.send('Creando Proyecto... ');
+
 
     }
 
