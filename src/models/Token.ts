@@ -6,7 +6,6 @@ export interface IToken extends Document {
     createdAt: Date,
 }
 
-
 const tokenSchema : Schema = new Schema({
     token: {
         type: String,
