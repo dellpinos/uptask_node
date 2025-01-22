@@ -19,7 +19,7 @@ export class AuthEmail {
             html: `
                 <p>Hola ${user.name}, has creado tu cuenta en ${process.env.APP_NAME}, solo falta confirmarla.</p>
                 <p>Visita el siguiente enlace:</p>
-                <a href='#'>Confirmar Cuenta</a>
+                <a href='${process.env.FRONTEND_URL}/auth/confirm-account'>Confirmar Cuenta</a>
                 <p>Ingresa el código: <b>${user.token}</b></p>
                 <p>Este token expira en 10 minutos</p>
             `
