@@ -49,17 +49,19 @@ export class AuthController {
         try {
             const { token } = req.body;
             const tokenExists = await Token.findOne({ token });
+
             if (!tokenExists) {
                 const error = new Error('Token no válido');
                 return res.status(404).json({ error: error.message });
             }
 
             const user = await User.findById(tokenExists.user);
+
             user.confirmed = true;
 
-            await Promise.allSettled([
-                user.save(), tokenExists.deleteOne()
-            ]);
+            await user.save();
+            await tokenExists.deleteOne();
+
             res.send('Cuenta confirmada correctamente');
 
         } catch (error) {
