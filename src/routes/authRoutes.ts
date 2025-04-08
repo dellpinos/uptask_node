@@ -27,7 +27,7 @@ router.post('/confirm-account',
         .notEmpty().withMessage('El token es obligatorio'),
     handleInputErrors,
     AuthController.confirmAccount
-)
+);
 
 router.post('/login',
     body('email')
@@ -36,7 +36,22 @@ router.post('/login',
     .notEmpty().withMessage('El password es obligatorio'),
     handleInputErrors,
     AuthController.login
-)
+);
+
+router.post('/request-code',
+    body('email')
+        .isEmail().withMessage('Email no válido'),
+    handleInputErrors,
+    AuthController.requestConfirmationCode
+);
+
+router.post('/forgot-password',
+    body('email')
+        .isEmail().withMessage('Email no válido'),
+    handleInputErrors,
+    AuthController.forgotPassword
+);
+
 
 export default router;
 

@@ -112,4 +112,74 @@ export class AuthController {
             res.status(500).json({ error: "Algo salió mal" })
         }
     }
+
+
+    static requestConfirmationCode = async (req: Request, res: Response) => {
+        try {
+            const { email } = req.body;
+
+            // Usuario existente
+            const user = await User.findOne({ email });
+            if (!user) {
+                const error = new Error('El usuario no está registrado');
+                return res.status(404).json({ error: error.message });
+            }
+
+            if(user.confirmed) {
+                const error = new Error('El usuario ya está confirmado');
+                return res.status(403).json({ error: error.message });
+            }
+
+            // Generar Token
+            const token = new Token();
+            token.token = generate6digitToken();
+            token.user = user.id;
+
+            // Enviar Email
+            AuthEmail.sendConfirmationEmail({
+                email: user.email,
+                name: user.name,
+                token: token.token
+            });
+
+            await Promise.allSettled([user.save(), token.save()]);
+
+            res.send('Se envió un nuevo token a tu e-mail')
+        } catch (error) {
+            console.log(error)
+            res.status(500).json({ error: "Algo salió mal" })
+        }
+    }
+
+    static forgotPassword = async (req: Request, res: Response) => {
+        try {
+            const { email } = req.body;
+
+            // Usuario existente
+            const user = await User.findOne({ email });
+            if (!user) {
+                const error = new Error('El usuario no está registrado');
+                return res.status(404).json({ error: error.message });
+            }
+
+            // Generar Token
+            const token = new Token();
+            token.token = generate6digitToken();
+            token.user = user.id;
+            await token.save();
+
+            // Enviar Email
+            AuthEmail.sendPasswordResetToken({
+                email: user.email,
+                name: user.name,
+                token: token.token
+            });
+
+            res.send('Revisa tu email para instrucciones');
+            
+        } catch (error) {
+            console.log(error)
+            res.status(500).json({ error: "Algo salió mal" })
+        }
+    }
 }
