@@ -9,7 +9,10 @@ export class ProjectController {
 
         try {
             await project.save();
+
+            console.log(req.user);
             res.send('Proyecto creado correctamente');
+
         } catch (error) {
             console.log(error);
         }

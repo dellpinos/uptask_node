@@ -4,6 +4,7 @@ import { checkPassword, hashPasword } from "../utils/auth";
 import Token from "../models/Token";
 import { generate6digitToken } from "../utils/token";
 import { AuthEmail } from "../emails/AuthEmail";
+import { generateJWT } from "../utils/jwt";
 
 
 export class AuthController {
@@ -104,7 +105,8 @@ export class AuthController {
                 return res.status(401).json({ error: error.message });
             }
 
-            res.send('Autenticado');
+            const token = generateJWT({id: user.id});
+            res.send(token);
 
 
         } catch (error) {
