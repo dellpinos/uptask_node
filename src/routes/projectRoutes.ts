@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { body, param } from 'express-validator';
 import { ProjectController } from '../controllers/ProjectController';
+import { TeamMemberController } from '../controllers/TeamController';
 import { handleInputErrors } from '../middleware/validation';
 import { TaskController } from '../controllers/TaskController';
 import { projectExists } from '../middleware/project';
@@ -30,7 +31,7 @@ router.get('/:id',
     ProjectController.getProjectById
 );
 
-router.put('/:id', 
+router.put('/:id',
     param('id').isMongoId().withMessage('ID no válido'),
     body('projectName')
         .notEmpty().withMessage('El nombre del proyecto es obligatorio'),
@@ -97,6 +98,21 @@ router.post('/:projectId/tasks/:taskId/status',
     handleInputErrors,
     TaskController.updateStatus
 
-)
+);
+
+/** Routes for teams */
+router.post('/:projectId/team/find',
+    body('email')
+        .isEmail().toLowerCase().withMessage('Email no válido'),
+    handleInputErrors,
+    TeamMemberController.findMemberByEmail
+);
+
+router.post('/:projectId/team',
+    body('id')
+        .isMongoId().withMessage('ID No válida'),
+    handleInputErrors,
+    TeamMemberController.addMemberById
+);
 
 export default router;
