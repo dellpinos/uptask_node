@@ -20,28 +20,18 @@ export class TeamMemberController {
     static addMemberById = async (req: Request, res: Response) => {
 
         const { id } = req.body;
-        const { projectId } = req.params;
-
-        // Find Project
-        const project = await Project.findById( projectId ).select('id team manager');
 
         // Check if the user is already in the project
-        const alreadyInProject = project.team.some(memberId => memberId.toString() === id);
+        const alreadyInProject = req.project.team.some(memberId => memberId.toString() === id);
 
         if (alreadyInProject) {
             return res.status(409).json({ error: 'El usuario ya es parte del proyecto' });
-        }
-    
-        if (!project) {
-            return res.status(404).json({ error: 'Proyecto no encontrado' });
         }
 
         // Find User
         const user = await User.findById( id ).select('id');
 
-        if (!user || id === project.manager.toString()) {
-            console.log('es el mismo', id === project.manager.toString())
-            console.log('no existe', !user)
+        if (!user || id === req.project.manager.toString()) {
             const error = new Error('Usuario no encontrado');
             return res.status(404).json({ error: error.message });
         }
@@ -50,5 +40,18 @@ export class TeamMemberController {
         await req.project.save();
 
         res.json('Usuario agregado correctamente');
+    }
+
+    static removeMemberById = async (req: Request, res: Response) => {
+
+        const { id } = req.body;
+
+        req.project.team = req.project.team.filter( teamMember => teamMember.toString() !== id);
+
+        await req.project.save();
+
+        res.send('Usuario eliminado correctamente');
+
+
     }
 }
