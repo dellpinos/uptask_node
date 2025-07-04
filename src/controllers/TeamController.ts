@@ -60,16 +60,16 @@ export class TeamMemberController {
 
     static removeMemberById = async (req: Request, res: Response) => {
 
-        const { id } = req.body;
+        const { userId } = req.params;
 
         // Check if the user is already in the project
-        const alreadyInProject = req.project.team.some(team => team.toString() === id);
+        const alreadyInProject = req.project.team.some(team => team.toString() === userId);
 
         if (!alreadyInProject) {
             return res.status(409).json({ error: 'El usuario no es parte del proyecto' });
         }
 
-        req.project.team = req.project.team.filter( teamMember => teamMember.toString() !== id);
+        req.project.team = req.project.team.filter( teamMember => teamMember.toString() !== userId);
         await req.project.save();
 
         res.send('Usuario eliminado correctamente');
