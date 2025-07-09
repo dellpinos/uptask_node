@@ -22,7 +22,7 @@ export class ProjectController {
             const projects = await Project.find({
                 $or: [
                     { manager: { $in: req.user.id } },
-                    { team: { $in: req.user.id}}
+                    { team: { $in: req.user.id } }
                 ]
             });
             res.json(projects)
@@ -35,7 +35,16 @@ export class ProjectController {
 
         const { id } = req.params;
         try {
-            const project = await (await Project.findById(id)).populate('tasks');
+            // const project = await (await Project.findById(id)).populate('tasks');
+            const project = await Project.findById(id)
+                .populate({
+                    path: 'tasks',
+                    populate: {
+                        path: 'completedBy',
+                        model: 'User'
+                    }
+                });
+
 
             if (!project) {
                 const error = new Error('Proyecto no encontrado');
