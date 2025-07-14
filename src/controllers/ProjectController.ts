@@ -35,16 +35,14 @@ export class ProjectController {
 
         const { id } = req.params;
         try {
-            // const project = await (await Project.findById(id)).populate('tasks');
             const project = await Project.findById(id)
                 .populate({
                     path: 'tasks',
                     populate: {
-                        path: 'completedBy',
+                        path: 'completedBy.user',
                         model: 'User'
                     }
                 });
-
 
             if (!project) {
                 const error = new Error('Proyecto no encontrado');
