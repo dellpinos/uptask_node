@@ -32,7 +32,14 @@ export class TaskController {
     static getTaskById = async (req: Request, res: Response) => {
         try {
             const task = await Task.findById(req.task.id)
-                .populate('completedBy.user');
+                .populate(['completedBy.user', 'notes']); // Faltan los datos de quien creo la nota
+                // .populate([ 'completedBy.user',{
+                //     path: 'notes',
+                //     populate: {
+                //         path: 'notes.createdBy',
+                //         model: 'User'
+                //     }
+                // }]);
             res.json(task);
 
         } catch (error) {
