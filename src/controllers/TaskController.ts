@@ -47,6 +47,7 @@ export class TaskController {
                     }
                 ]);
 
+            console.log(task)
             res.json(task);
 
         } catch (error) {

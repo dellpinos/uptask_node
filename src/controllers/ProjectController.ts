@@ -38,10 +38,21 @@ export class ProjectController {
             const project = await Project.findById(id)
                 .populate({
                     path: 'tasks',
-                    populate: {
-                        path: 'completedBy.user',
-                        model: 'User'
-                    }
+                    populate: [
+                        {
+                            path: 'completedBy.user',
+                            model: 'User',
+                            select: 'id name email'
+                        },
+                        {
+                            path: 'notes',
+                            populate: {
+                                path: 'createdBy',
+                                model: 'User',
+                                select: 'id name email'
+                            }
+                        }
+                    ]
                 });
 
             if (!project) {
