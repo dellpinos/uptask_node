@@ -100,12 +100,12 @@ export class AuthController {
 
             // Revisar Password
             const isPasswordCorrect = await checkPassword(password, user.password);
-            if(!isPasswordCorrect) {
+            if (!isPasswordCorrect) {
                 const error = new Error('Password incorrecto');
                 return res.status(401).json({ error: error.message });
             }
 
-            const token = generateJWT({id: user.id});
+            const token = generateJWT({ id: user.id });
             res.send(token);
 
 
@@ -127,7 +127,7 @@ export class AuthController {
                 return res.status(404).json({ error: error.message });
             }
 
-            if(user.confirmed) {
+            if (user.confirmed) {
                 const error = new Error('El usuario ya está confirmado');
                 return res.status(403).json({ error: error.message });
             }
@@ -178,7 +178,7 @@ export class AuthController {
             });
 
             res.send('Revisa tu email para instrucciones');
-            
+
         } catch (error) {
             console.log(error)
             res.status(500).json({ error: "Algo salió mal" })
@@ -227,5 +227,60 @@ export class AuthController {
     }
 
     static user = async (req: Request, res: Response) => res.json(req.user);
-    
+
+    static updateProfile = async (req: Request, res: Response) => {
+        const { name, email } = req.body;
+
+        const userExists = await User.findOne({ email });
+        if (userExists && userExists.id.toString() !== req.user.id.toString()) {
+            const error = new Error('Ese email ya está registrado');
+            return res.status(409).json({ error: error.message });
+        }
+
+        req.user.name = name;
+        req.user.email = email;
+
+        try {
+            await req.user.save();
+            res.send('Perfil actualizado correctamente');
+
+        } catch (error) {
+            res.status(500).send('Hubo un error');
+        }
+    }
+
+    static updateCurrentUserPassword = async (req: Request, res: Response) => {
+        const { current_password, password } = req.body;
+
+        const user = await User.findById(req.user.id);
+        const isPasswordCorrect = await checkPassword(current_password, user.password);
+
+        if (!isPasswordCorrect) {
+            const error = new Error('El password actual es incorrecto');
+            return res.status(401).json({ error: error.message });
+        }
+
+        try {
+            user.password = await hashPasword(password);
+            await user.save();
+            res.send('Password fue actualizado con éxito');
+        } catch (error) {
+            res.status(500).send('Hubo un error');
+        }
+
+    }
+
+    static checkPassword = async (req: Request, res: Response) => {
+        const { password } = req.body;
+
+        const user = await User.findById(req.user.id);
+        const isPasswordCorrect = await checkPassword(password, user.password);
+
+        if (!isPasswordCorrect) {
+            const error = new Error('El password es incorrecto');
+            return res.status(401).json({ error: error.message });
+        }
+
+        res.send('Password Correcto');
+    }
 }
